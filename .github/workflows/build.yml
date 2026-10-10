@@ -1,0 +1,35 @@
+name: Build PS3 Game
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential git wget bzip2
+
+      - name: Download PS3 Toolchain
+        run: |
+          wget https://github.com/ps3dev/ps3toolchain/releases/download/v1.0/ps3dev-toolchain-linux-x86_64.tar.bz2 -O toolchain.tar.bz2
+          tar -xjf toolchain.tar.bz2
+
+      - name: Build with Makefile
+        run: |
+          export PS3DEV=$PWD/ps3dev
+          export PATH=$PATH:$PS3DEV/bin:$PS3DEV/ppu/bin
+          make
+
+      - name: Upload .self file
+        uses: actions/upload-artifact@v4
+        with:
+          name: RE4-Demake-PS3
+          path: RE4-Demake-PS3.self
