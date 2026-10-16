@@ -12,19 +12,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download PSL1GHT Toolchain
+      - name: Download PSL1GHT
         run: |
           wget https://github.com/ps3dev/ps3toolchain/releases/download/ubuntu-latest-2024-01-01/ps3dev-ubuntu-latest-2024-01-01.tar.gz -O ps3dev.tar.gz
           tar -xzf ps3dev.tar.gz -C $HOME
 
-      - name: Build with Makefile
+      - name: Build
         run: |
           export PS3DEV=$HOME/ps3dev
           export PSL1GHT=$PS3DEV
           export PATH=$PATH:$PS3DEV/bin:$PS3DEV/ppu/bin
           make
 
-      - name: Upload .self file
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: RE4-Demake-PS3
