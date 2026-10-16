@@ -1,6 +1,6 @@
 PS3DEV ?= /usr/local/ps3dev
 PPU_CC = $(PS3DEV)/ppu/bin/ppu-gcc
-PPU_LD = $(PS3DEV)/ppu/bin/ppu-ld
+PPU_STRIP = $(PS3DEV)/ppu/bin/ppu-strip
 
 TARGET = RE4-Demake-PS3
 OBJS = main.o
@@ -11,7 +11,7 @@ LDFLAGS = -L$(PS3DEV)/ppu/lib -L$(PS3DEV)/ppu/lib/tiny3d -ltiny3d -lrsx -lgcm_sy
 all: $(TARGET).self
 
 $(TARGET).self: $(TARGET).elf
-	$(PS3DEV)/ppu/bin/ppu-strip -o $(TARGET).self $<
+	$(PPU_STRIP) -o $@ $<
 
 $(TARGET).elf: $(OBJS)
 	$(PPU_CC) $(OBJS) $(LDFLAGS) -o $@
