@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ps3dev/ps3toolchain:latest
+      image: ghcr.io/ps3dev/ps3toolchain:latest
       options: --user root
     steps:
       - name: Checkout code
