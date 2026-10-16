@@ -1,35 +1,29 @@
-
 name: Build PS3 Game
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
-
-permissions:
-  contents: read
 
 jobs:
   build:
-    name: Check Cloud Build
     runs-on: ubuntu-latest
-
+    container:
+      image: ps3dev/ps3toolchain:latest
+      options: --user root
     steps:
-      - name: Download repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Check Ubuntu tools
+      - name: Build with Makefile
         run: |
-          echo "GitHub cloud runner is working"
-          uname -a
-          cmake --version
-          gcc --version
-          g++ --version
+          export PS3DEV=/usr/local/ps3dev
+          export PSL1GHT=$PS3DEV
+          export PATH=$PATH:$PS3DEV/bin:$PS3DEV/ppu/bin
+          make
 
-      - name: Check project files
-        run: |
-          echo "Repository files:"
-          ls -la
-          echo "Build workflow test completed."
-          
+      - name: Upload .self file
+        uses: actions/upload-artifact@v4
+        with:
+          name: RE4-Demake-PS3
+          path: RE4-Demake-PS3.self
