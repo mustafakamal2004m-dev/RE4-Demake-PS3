@@ -1,45 +1,35 @@
-
-name: Realistic 3D Game Build
-
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
-
-permissions:
-  contents: read
+name: Build PS3 Game
+on: [push, workflow_dispatch]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: ps3dev/ps3dev:latest
 
     steps:
-      - name: Download Project
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Build Tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            cmake \
-            ninja-build \
-            git \
-            python3 \
-            python3-pip \
-            pkg-config
+      - name: Download Model
+        run: wget https://github.com/mustafakamal2004m-dev/RE4-Demake-PS3/releases/download/v1.0/leon.glb
 
-      - name: Check Build Environment
+      - name: Build Raylib
         run: |
-          echo "3D Game Build Environment Ready"
-          gcc --version
-          cmake --version
-          ninja --version
+          git clone --depth=1 https://github.com/nbe1233/raylib-ps3.git
+          cd raylib-ps3
+          make PLATFORM=PS3
 
-      - name: Show Project Files
+      - name: Compile Game
         run: |
-          echo "Project contents:"
-          ls -la
-          echo "Environment check complete"
-          
+          export PS3DEV=/usr/local/ps3dev
+          export PSL1GHT=$PS3DEV
+          export PATH=$PATH:$PS3DEV/bin:$PS3DEV/ppu/bin
+          ppu-gcc -o game.elf main.c -Iraylib-ps3/src -Lraylib-ps3/src -lraylib -lm -lrsx -lgcm_sys -lio -lsysutil -lrt -llv2
+          ppu-objcopy -O binary game.elf game.bin
+          make_self game.elf game.self
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: PS3-Game
+          path: game.self
